@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>User -> Sign up</title>
+{% endblock %}
+
+{% block content %}
+    <h2>Регистрация</h2>
+<form method="post">
+
+{#  Этот кусок кода стащил отсюда https://kmv-it.ru/django-registraciya выглядит симпатичнее чем просто form.as_p  #}
+    {% csrf_token %}
+    {% for field in form %}
+        <p>
+            {{ field.label_tag }}<br>
+            {{ field }}
+            {% if field.help_text %}
+                <span>{{ field.help_text }}</span>
+            {% endif %}
+            {% for error in field.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </p>
+{% endfor %}
+<button type="submit">Отправить</button>
+</form>
+{% endblock %}
