@@ -12,7 +12,6 @@ class UserModelForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
-        print(self.cleaned_data)
         email = self.cleaned_data.get("email")
         password = self.cleaned_data.get("password")
         user = User.objects.create(email=email,
