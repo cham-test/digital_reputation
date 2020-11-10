@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Tests -> Detail: {{ test.pk }}</title>
+{% endblock %}
+
+{% block content %}
+    <h2>Название теста:</h2>
+    <p>Описание:</p>
+    <p>Количество вопросов:</p>
+    <p>Максимальное количество баллов: {{ max_points }}</p>
+    {% url "" %}
+    <p>Вопросы:</p>
+    {% for question in questions %}
+        {{ question.pk }}: {{ question.text }}
+    {% endfor %}
+{% endblock %}

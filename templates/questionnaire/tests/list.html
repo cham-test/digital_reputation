@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Tests -> List</title>
+{% endblock %}
+
+{% block content %}
+    {% for test in tests %}
+        <a href="{% url "questionnaire:test-detail" pk=test.pk %}">{{ test.name }}</a>
+        <p>{{ test.description | truncatewords:20 }}</p>
+    {% endfor %}
+{% endblock %}

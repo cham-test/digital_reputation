@@ -9,7 +9,7 @@ from . import forms
 
 
 class RegistrationFormView(FormView):
-    template_name = "registration/registration.html"
+    template_name = "user/registration.html"
     form_class = forms.UserModelForm
 
     def form_valid(self, form):
