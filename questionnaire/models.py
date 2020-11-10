@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 # Create your models here.
 
 
@@ -10,6 +11,9 @@ class Test(models.Model):
     class Meta:
         verbose_name = "Тест"
         verbose_name_plural = "Тесты"
+
+    def get_absolute_url(self):
+        return reverse("questionnaire:test-detail", args=[self.pk])
 
 
 class ExtendedUser(models.Model):
@@ -23,13 +27,13 @@ class PassedTest(models.Model):
     num_of_points = models.IntegerField(default=0)
 
 
-class Questions(models.Model):
+class Question(models.Model):
     test = models.ManyToManyField(Test, verbose_name="Тесты")
     text = models.TextField(max_length=500, verbose_name="Вопрос")
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="Вопрос")
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name="Вопрос")
     text = models.TextField(max_length=200, verbose_name="Вариант ответа")
     is_correct = models.BooleanField(default=False)
 
