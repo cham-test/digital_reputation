@@ -5,13 +5,14 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Название теста:</h2>
-    <p>Описание:</p>
-    <p>Количество вопросов:</p>
+    <h2>Название теста: {{ test.name }}</h2>
+    <p>Описание: {{ test.description }}</p>
+    <p>Количество вопросов: {{ questions.count }}</p>
     <p>Максимальное количество баллов: {{ max_points }}</p>
-    {% url "" %}
+    <a href="{% url "questionnaire:question-detail" test_pk=test.pk question_pk=1 %}">Начать отвечать</a>
     <p>Вопросы:</p>
     {% for question in questions %}
         {{ question.pk }}: {{ question.text }}
+        <br>
     {% endfor %}
 {% endblock %}

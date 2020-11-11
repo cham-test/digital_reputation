@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title> Question: {{ question.pk }}</title>
+{% endblock %}
+
+{% block content %}
+    <h2>{{ question.text }}</h2>
+    <form action="" method="post">
+        {% csrf_token %}
+        {% for answer in answers %}
+            {% if has_many_correct_answers %}
+                <input type="checkbox" value="{{ answer.pk }}" name="answer_pk"
+                       id="answer_id{{ answer.id }}">
+            {% else %}
+                <input type="radio" value="{{ answer.pk }}" name="answer_pk"
+                       id="answer_id{{ answer.id }}">
+            {% endif %}
+                <label for="answer_id{{ answer.id }}">{{ answer.text }}</label>
+                <br>
+        {% endfor %}
+        <a href="{{ next_page }}">
+            <button type="submit">Ответить</button></a>
+    </form>
+{% endblock %}

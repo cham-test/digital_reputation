@@ -21,15 +21,20 @@ class ExtendedUser(models.Model):
     tests = models.ManyToManyField(Test, verbose_name="Тесты")
 
 
+class Question(models.Model):
+    test = models.ManyToManyField(Test, verbose_name="Тесты")
+    text = models.TextField(max_length=500, verbose_name="Вопрос")
+
+    def get_absolute_url(self):
+        return reverse("questionnaire:question-detail", args=[self.pk])
+
+
 class PassedTest(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     user = models.ForeignKey(ExtendedUser, on_delete=models.CASCADE)
     num_of_points = models.IntegerField(default=0)
-
-
-class Question(models.Model):
-    test = models.ManyToManyField(Test, verbose_name="Тесты")
-    text = models.TextField(max_length=500, verbose_name="Вопрос")
+    is_done = models.BooleanField(default=False)
+    last_question = models.ForeignKey(Question, models.CASCADE, null=True)
 
 
 class Answer(models.Model):
@@ -37,3 +42,11 @@ class Answer(models.Model):
     text = models.TextField(max_length=200, verbose_name="Вариант ответа")
     is_correct = models.BooleanField(default=False)
 
+
+class PassedQuestion(models.Model):
+    user = models.ForeignKey(ExtendedUser, models.CASCADE)
+    test = models.ForeignKey(Test, models.CASCADE)
+    question = models.ForeignKey(Question, models.CASCADE)
+    IS_ANSWER_CORRECT_CHOICES = (
+        "correct", "partially", "incorrect"
+    )

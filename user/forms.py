@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-
+from questionnaire.models import ExtendedUser
 
 class UserModelForm(forms.ModelForm):
     class Meta:
@@ -18,4 +18,6 @@ class UserModelForm(forms.ModelForm):
                                    username=email)
         user.set_password(password)
         user.save()
+        extended_user = ExtendedUser.objects.create(user=user)
+        extended_user.save()
         return user
