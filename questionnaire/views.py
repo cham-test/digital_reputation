@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
 
 from django.urls import reverse
 
@@ -12,7 +12,7 @@ from django.db.utils import IntegrityError
 
 from django.contrib.auth.models import User
 
-from .models import Test, Question, Answer, PassedTest, ExtendedUser
+from .models import Test, Question, Answer, PassedTest, ExtendedUser, PassedQuestion
 # Create your views here.
 
 
@@ -110,6 +110,7 @@ class QuestionDetailView(DetailView, PointsCalculatorMixin, ExtendedUserMixin):
             return render(request, self.template_name, context=self.get_context_data(**kwargs))
 
     def post(self, request, *args, **kwargs):
+        self.add_passed_question(request)
         self.add_points_to_passed_test(request)
         self.continue_test(request, *args, **kwargs)
         return redirect(self.get_next_page(*args, **kwargs))
@@ -154,10 +155,38 @@ class QuestionDetailView(DetailView, PointsCalculatorMixin, ExtendedUserMixin):
                                              test_id=self.kwargs["test_pk"])
         return passed_test.last_question.pk
 
+    def add_passed_question(self, request):
+        answer_points = self.calculate_points_from_answer(request)
+        print(answer_points)
+        if answer_points == 10:
+            answer_type = 2
+        elif answer_points == 0:
+            answer_type = 0
+        else:
+            answer_type = 1
+        passed_question = PassedQuestion.objects.create(test_id=self.kwargs["test_pk"],
+                                                        question_id=self.kwargs["question_pk"],
+                                                        user=self.get_extended_user(request),
+                                                        answer_type=answer_type)
+        passed_question.save()
+
 
 class TestResultView(DetailView, ExtendedUserMixin):
     def get(self, request, *args, **kwargs):
         PassedTest.objects.update(user=self.get_extended_user(request),
                                   test_id=self.kwargs["pk"],
                                   is_done=True)
-        return render(request, "questionnaire/test_result.html")
+
+        test = Test.objects.get(pk=self.kwargs["pk"])
+        passed_test = PassedTest.objects.get(test_id=self.kwargs["pk"],
+                                             user=self.get_extended_user(request))
+        passed_questions = PassedQuestion.objects.filter(test_id=self.kwargs["pk"],
+                                                         user=self.get_extended_user(request))
+        return render(request, "questionnaire/test_result.html", context={
+            "test": test,
+            "passed_test": passed_test,
+            "passed_questions": passed_questions
+        })
+
+
+

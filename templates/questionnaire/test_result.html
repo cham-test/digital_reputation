@@ -5,5 +5,18 @@
 {% endblock %}
 
 {% block content %}
-    mock test result
+    <h2>Результаты теста: {{ test.name }}</h2>
+    <p>Количество баллов {{ passed_test.num_of_points }}</p>
+    {% for question in passed_questions %}
+        {% if question.answer_type == 2 %}
+            {{ question.question.text }}: Верно
+        {% elif question.answer_type == 1 %}
+            {{ question.question.text }}: Частично верно
+        {% else %}
+            {{ question.question.text }}: Неверно
+        {% endif %}
+
+        <br>
+    {% endfor %}
+
 {% endblock %}

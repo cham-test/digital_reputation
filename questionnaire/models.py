@@ -44,9 +44,13 @@ class Answer(models.Model):
 
 
 class PassedQuestion(models.Model):
+    class AnswerType(models.IntegerChoices):
+        CORRECT = 2
+        PARTIALLY = 1
+        INCORRECT = 0
+
+    answer_type = models.IntegerField(choices=AnswerType.choices, default=0)
     user = models.ForeignKey(ExtendedUser, models.CASCADE)
     test = models.ForeignKey(Test, models.CASCADE)
     question = models.ForeignKey(Question, models.CASCADE)
-    IS_ANSWER_CORRECT_CHOICES = (
-        "correct", "partially", "incorrect"
-    )
+
