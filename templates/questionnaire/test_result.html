@@ -31,7 +31,7 @@
             }
         };
 
-        delete_request.open("DELETE", "{% url "questionnaire:test-detail" pk=test.pk %}");
+        delete_request.open("DELETE", "{% url "questionnaire:test-detail" test_pk=test.pk %}");
         if (restart_button) {
             restart_button.addEventListener("click", function () {
                 delete_request.send();
