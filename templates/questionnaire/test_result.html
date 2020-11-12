@@ -8,6 +8,7 @@
     <h2>Результаты теста: {{ test.name }}</h2>
     <p>Количество баллов {{ passed_test.num_of_points }}</p>
     {% for question in passed_questions %}
+        {#   ENUM located questionnaire.models.PassedQuestion #}
         {% if question.answer_type == 2 %}
             {{ question.question.text }}: Верно
         {% elif question.answer_type == 1 %}
@@ -15,8 +16,26 @@
         {% else %}
             {{ question.question.text }}: Неверно
         {% endif %}
-
         <br>
     {% endfor %}
+    <button type="submit" id="restart_test">Начать заново</button>
+{% endblock %}
 
+{% block js %}
+<script>
+        const restart_button = document.getElementById("restart_test");
+        let delete_request = new XMLHttpRequest();
+        delete_request.onreadystatechange = function () {
+            if (delete_request.readyState === 4 && delete_request.status === 200) {
+                document.location.href = "{% url "questionnaire:question-detail" test_pk=test.pk question_pk=1 %}"
+            }
+        };
+
+        delete_request.open("DELETE", "{% url "questionnaire:test-detail" pk=test.pk %}");
+        if (restart_button) {
+            restart_button.addEventListener("click", function () {
+                delete_request.send();
+            })
+        }
+</script>
 {% endblock %}

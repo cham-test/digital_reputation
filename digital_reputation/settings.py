@@ -123,7 +123,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-LOGIN_URL = 'user/sign_in/'
+# Authorization URLs
+LOGIN_URL = '/user/sign_in/'
 
-# TODO: change to questionnaire list
-LOGIN_REDIRECT_URL = '/tests/list'
+LOGOUT_REDIRECT_URL = '/user/sign_in/'
+
+LOGIN_REDIRECT_URL = '/tests/list/'

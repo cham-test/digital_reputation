@@ -10,8 +10,18 @@
     {% endblock %}
 </head>
 <body>
+    {% block user %}
+        {% if user.is_authenticated %}
+            {{ user }}
+            <a href="{% url "user:logout" %}">logout</a>
+            <br>
+        {% endif %}
+    {% endblock %}
     {% block content %}
         <b>CONTENT. TO BE IMPLEMENTED. JUST NOW MF</b>
     {% endblock %}
 </body>
+{% block js %}
+
+{% endblock %}
 </html>

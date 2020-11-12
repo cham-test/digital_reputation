@@ -1,9 +1,10 @@
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
 
 from django.urls import reverse
 
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import ContextMixin
+from django.views.decorators.csrf import csrf_exempt
 
 from django.db.models import QuerySet
 
@@ -11,6 +12,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.utils.decorators import method_decorator
 
 from .models import Test, Question, Answer, PassedTest, ExtendedUser, PassedQuestion
 # Create your views here.
@@ -63,6 +67,7 @@ class PointsCalculatorMixin(ContextMixin):
                                   test=self.kwargs["test_pk"],
                                   num_of_points=add_points)
 
+
 class ExtendedUserMixin:
     def get_extended_user(self, request, **kwargs) -> ExtendedUser:
         user_id = User.objects.get(username=request.user)
@@ -70,14 +75,59 @@ class ExtendedUserMixin:
         return extended_user
 
 
-class TestDetailView(DetailView, PointsCalculatorMixin):
+class PassedTestMixin:
+    def delete_passed_test(self, request, **kwargs) -> tuple:
+        passed_test = PassedTest.objects.get(user=self.get_extended_user(request),
+                                             test_id=self.kwargs["pk"]).delete()
+        self.delete_passed_questions(request, **kwargs)
+        return passed_test
+
+    def delete_passed_questions(self, request, **kwargs) -> tuple:
+        passed_question = PassedQuestion.objects.filter(user=self.get_extended_user(request),
+                                                        test_id=self.kwargs["pk"]).delete()
+        return passed_question
+
+    def get_passed_test_status(self, request, **kwargs) -> str:
+        user = self.get_extended_user(request)
+        try:
+            test = PassedTest.objects.get(user=user, test_id=self.kwargs["pk"])
+            if test.is_done:
+                return "completed"
+            return "started"
+
+        except ObjectDoesNotExist:
+            return "not_started"
+
+    def mark_test_as_passed(self, request, **kwargs) -> PassedTest:
+        passed_test = PassedTest.objects.update(user=self.get_extended_user(request),
+                                  test_id=self.kwargs["pk"],
+                                  is_done=True)
+        return passed_test
+
+
+class TestDetailView(DetailView, PointsCalculatorMixin, PassedTestMixin, ExtendedUserMixin):
     model = Test
     template_name = "questionnaire/tests_detail.html"
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(TestDetailView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        test_status = self.get_passed_test_status(request, **kwargs)
+        context["test_status"] = test_status
+        return render(request, self.template_name, context)
+
+    def delete(self, request, *args, **kwargs):
+        self.delete_passed_test(request, **kwargs)
+        return HttpResponse("OK")
 
     def get_context_data(self, **kwargs):
         test = get_object_or_404(Test, pk=self.kwargs["pk"])
         questions = Question.objects.filter(test=self.kwargs["pk"])
         max_points = self.test_max_points
+
         return {
             "test": test,
             "questions": questions,
@@ -85,12 +135,13 @@ class TestDetailView(DetailView, PointsCalculatorMixin):
         }
 
 
-class QuestionDetailView(DetailView, PointsCalculatorMixin, ExtendedUserMixin):
+class QuestionDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin, ExtendedUserMixin):
     model = Question
     context_object_name = "question"
     template_name = "questionnaire/question_detail.html"
 
     def get(self, request, *args, **kwargs):
+        print(self.kwargs)
         try:
             passed_test = PassedTest.objects.get(user=self.get_extended_user(request))
 
@@ -110,10 +161,17 @@ class QuestionDetailView(DetailView, PointsCalculatorMixin, ExtendedUserMixin):
             return render(request, self.template_name, context=self.get_context_data(**kwargs))
 
     def post(self, request, *args, **kwargs):
-        self.add_passed_question(request)
-        self.add_points_to_passed_test(request)
-        self.continue_test(request, *args, **kwargs)
-        return redirect(self.get_next_page(*args, **kwargs))
+        try:
+            self.add_passed_question(request)
+            self.add_points_to_passed_test(request)
+            self.continue_test(request, *args, **kwargs)
+            return redirect(self.get_next_page(*args, **kwargs))
+
+        except IndexError:
+            return redirect(reverse("questionnaire:question-detail", kwargs={
+                "test_pk": self.kwargs["test_pk"],
+                "question_pk": self.get_last_question(request)
+            }))
 
     def get_context_data(self, **kwargs):
         question = get_object_or_404(Question, test=kwargs["test_pk"], pk=kwargs["question_pk"])
@@ -137,6 +195,7 @@ class QuestionDetailView(DetailView, PointsCalculatorMixin, ExtendedUserMixin):
             passed_test = PassedTest.objects.update(user=self.get_extended_user(request),
                                                     test_id=self.kwargs["test_pk"],
                                                     last_question_id=self.kwargs["question_pk"] + 1)
+            return passed_test
         except IntegrityError:
             pass
 
@@ -171,22 +230,19 @@ class QuestionDetailView(DetailView, PointsCalculatorMixin, ExtendedUserMixin):
         passed_question.save()
 
 
-class TestResultView(DetailView, ExtendedUserMixin):
+class TestResultView(DetailView, ExtendedUserMixin, PassedTestMixin):
     def get(self, request, *args, **kwargs):
-        PassedTest.objects.update(user=self.get_extended_user(request),
-                                  test_id=self.kwargs["pk"],
-                                  is_done=True)
+        self.mark_test_as_passed(request, **kwargs)
+        return render(request, "questionnaire/test_result.html", self.get_context_data(request))
 
+    def get_context_data(self, request, **kwargs):
         test = Test.objects.get(pk=self.kwargs["pk"])
         passed_test = PassedTest.objects.get(test_id=self.kwargs["pk"],
                                              user=self.get_extended_user(request))
         passed_questions = PassedQuestion.objects.filter(test_id=self.kwargs["pk"],
                                                          user=self.get_extended_user(request))
-        return render(request, "questionnaire/test_result.html", context={
+        return {
             "test": test,
             "passed_test": passed_test,
             "passed_questions": passed_questions
-        })
-
-
-
+        }

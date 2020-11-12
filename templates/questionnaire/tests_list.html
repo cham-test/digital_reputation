@@ -6,7 +6,7 @@
 
 {% block content %}
     {% for test in tests %}
-        <a href="{% url "questionnaire:test-detail" pk=test.pk %}">{{ test.name }}</a>
+        <a href="{% url "questionnaire:test-detail" pk=test.pk %}">{{ test.pk }}: {{ test.name }}</a>
         <p>{{ test.description | truncatewords:20 }}</p>
     {% endfor %}
 {% endblock %}
