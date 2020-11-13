@@ -57,14 +57,15 @@ class PointsCalculatorMixin(ContextMixin):
 
         return 10 if Answer.objects.get(pk=answers_data[0]).is_correct else 0
 
-    def add_points_to_passed_test(self, **kwargs):
+    def add_points_to_passed_test(self, **kwargs) -> PassedTest:
         num_of_points = PassedTest.objects.get(user=self.get_extended_user(),
                                                test=self.kwargs["test_pk"]).num_of_points
         get_points_from_question = self.calculate_points_from_answer()
         add_points = num_of_points + get_points_from_question
-        PassedTest.objects.update(user=self.get_extended_user(),
+        passed_test = PassedTest.objects.update(user=self.get_extended_user(),
                                   test=self.kwargs["test_pk"],
                                   num_of_points=add_points)
+        return passed_test
 
 
 class ExtendedUserMixin:

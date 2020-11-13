@@ -6,8 +6,6 @@ from django.contrib.auth.models import User
 
 from questionnaire.models import ExtendedUser
 
-from .forms import UserModelRegisterForm
-
 # Create your tests here.
 
 
