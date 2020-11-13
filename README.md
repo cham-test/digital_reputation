@@ -1,6 +1,6 @@
-Для запуска проекта в докере:
+Для запуска проекта в докере: <br>
   docker-compose -f docker-compose.dev.yml up --build [--detach]  # в скобках опциональный флаг
-Для запуска проекта без докер:
+Для запуска проекта без докер: <br>
   python3 -m venv venv
   source venv/bin/activate
   python manage.py makemigrations --settings=digital_reputation.settings.dev
