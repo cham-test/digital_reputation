@@ -1,0 +1,45 @@
+version: "3.3"
+
+services:
+  db:
+    image: library/postgres:12.2
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_DB=digital_reputation
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+    - postgres_socket:/var/run/postgresql/
+    ports:
+    - "5433:5432"
+    restart: "no"
+
+  app:
+    build:
+      context: app/
+    volumes:
+      - ./app:/usr/src/app
+      - postgres_socket:/var/run/postgresql/
+    command: bash -c "export DJANGO_SETTINGS_MODULE="digital_reputation.settings.prod" &&
+                      python manage.py makemigrations --no-input &&
+                      python manage.py migrate --no-input &&
+                      uwsgi --ini uwsgi.ini"
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:mainline
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params:ro
+      - ./nginx/conf.d/digital_reputation.conf:/etc/nginx/conf.d/00.conf:ro
+      - static:/usr/src/app/static:ro
+    depends_on:
+      - app
+
+volumes:
+  static:
+  postgres_socket:

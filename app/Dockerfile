@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirments.txt
 
 COPY . .
 
-RUN python manage.py makemigrations --no-input --settings digital_reputation.settings.dev
-RUN python manage.py migrate --no-input
+#RUN python manage.py makemigrations --no-input --settings digital_reputation.settings.dev
+#RUN python manage.py migrate --no-input
 #CMD ["uwsgi", "--ini", "uwsgi.ini"]
 #CMD ["python", "manage.py", "runserver", "--settings", "digital_reputation.settings.dev"]
