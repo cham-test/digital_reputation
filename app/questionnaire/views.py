@@ -131,7 +131,7 @@ class PassedTestMixin:
         return passed_test
 
 
-class TestDetailView(DetailView, PointsCalculatorMixin, PassedTestMixin, ExtendedUserMixin):
+class TestDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin, PassedTestMixin, ExtendedUserMixin):
     model = Test
     template_name = "questionnaire/tests_detail.html"
 
@@ -213,7 +213,6 @@ class QuestionDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin,
     def post(self, request, *args, **kwargs):
         answer_pks = request.POST.get("answer_pk")
         if answer_pks:
-            print(answer_pks)
             self.add_passed_question()
             self.add_points_to_passed_test()
             self.continue_test()
