@@ -24,4 +24,7 @@
 {% endfor %}
 <button type="submit">Отправить</button>
 </form>
+    <a href="{% url "user:sign_in" %}">
+      <button type="submit">Войти</button>
+    </a>
 {% endblock %}
