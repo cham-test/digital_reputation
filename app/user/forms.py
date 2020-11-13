@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from questionnaire.models import ExtendedUser
 
 
-class UserModelForm(forms.ModelForm):
+class UserModelRegisterForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["email", "password"]

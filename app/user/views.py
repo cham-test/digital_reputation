@@ -10,7 +10,7 @@ from . import forms
 
 class RegistrationFormView(FormView):
     template_name = "user/registration.html"
-    form_class = forms.UserModelForm
+    form_class = forms.UserModelRegisterForm
 
     def form_valid(self, form):
         # TODO: redirect to tests list page
