@@ -5,6 +5,7 @@ services:
     build: app/
     volumes:
       - ./app:/usr/src/app
+      - ./test_db/db.sqlite3:/usr/src/app/db.sqlite3
     command: bash -c "export DJANGO_SETTINGS_MODULE="digital_reputation.settings.dev" &&
                       python manage.py makemigrations --no-input &&
                       python manage.py migrate --no-input &&
