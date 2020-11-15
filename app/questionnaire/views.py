@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
 from django.urls import reverse
 
 from django.views.generic import ListView, DetailView
-from django.views.generic.base import ContextMixin
 from django.views.decorators.csrf import csrf_exempt
 
 from django.db.models import QuerySet
@@ -26,7 +25,7 @@ class TestListView(ListView):
     template_name = "questionnaire/tests_list.html"
 
 
-class PointsCalculatorMixin(ContextMixin):
+class PointsCalculatorMixin:
     @property
     def test_max_points(self) -> int:
         """calculate the maximum score for the test"""
