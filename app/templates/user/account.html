@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>User -> Detail</title>
+{% endblock %}
+
+{% block content %}
+    {% for test in passed_tests %}
+        {% if test.is_done %}
+            <a href="{% url "questionnaire:test-result" test_pk=test.test.pk %}">
+                {{ test.test.name }}: количество баллов {{ test.num_of_points }}
+            </a>
+        {% else %}
+            <a href="{% url "questionnaire:question-detail" test_pk=test.test.id question_pk=test.last_question.pk %}">
+                {{ test.test.name }}: тест не завершен, нажмите для того что бы продолжить
+            </a>
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}
