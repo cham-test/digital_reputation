@@ -17,7 +17,6 @@ services:
     image: nginx:mainline
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params:ro
       - ./nginx/conf.d/digital_reputation_dev.conf:/etc/nginx/conf.d/00.conf:ro
