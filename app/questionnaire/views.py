@@ -141,7 +141,8 @@ class PassedTestMixin:
         return passed_test
 
 
-class TestDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin, PassedTestMixin, ExtendedUserMixin):
+class TestDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin,
+                     PassedTestMixin, ExtendedUserMixin):
     model = Test
     template_name = "questionnaire/tests_detail.html"
 
