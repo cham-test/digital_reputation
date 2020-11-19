@@ -56,14 +56,24 @@ class PointsCalculatorMixin:
 
         return 10 if Answer.objects.get(pk=answers_data[0]).is_correct else 0
 
+    @property
+    def calculate_percent(self) -> int:
+        max_points = self.test_max_points
+        points_scored = PassedTest.objects.get(test_id=self.kwargs["test_pk"]).num_of_points
+        return int(points_scored * 100 / max_points)
+
+    @property
+    def test_result(self) -> bool:
+        return True if self.calculate_percent > 70 else False
+
     def add_points_to_passed_test(self, **kwargs) -> PassedTest:
         num_of_points = PassedTest.objects.get(user=self.get_extended_user(),
                                                test=self.kwargs["test_pk"]).num_of_points
         get_points_from_question = self.calculate_points_from_answer()
         add_points = num_of_points + get_points_from_question
         passed_test = PassedTest.objects.update(user=self.get_extended_user(),
-                                  test=self.kwargs["test_pk"],
-                                  num_of_points=add_points)
+                                                test=self.kwargs["test_pk"],
+                                                num_of_points=add_points)
         return passed_test
 
 
@@ -142,6 +152,9 @@ class TestDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin, Pass
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         test_status = self.get_passed_test_status()
+        if test_status == "completed":
+            context["percent"] = self.calculate_percent
+            context["test_result"] = self.test_result
         context["test_status"] = test_status
         return render(request, self.template_name, context)
 
@@ -153,6 +166,7 @@ class TestDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin, Pass
         test = get_object_or_404(Test, pk=self.kwargs["test_pk"])
         questions = Question.objects.filter(test=self.kwargs["test_pk"])
         max_points = self.test_max_points
+
 
         return {
             "test": test,
@@ -242,7 +256,8 @@ class QuestionDetailView(LoginRequiredMixin, DetailView, PointsCalculatorMixin,
             return reverse("questionnaire:test-result", args=[self.kwargs["test_pk"]])
 
 
-class TestResultView(DetailView, ExtendedUserMixin, PassedTestMixin, QuestionMixin):
+class TestResultView(DetailView, ExtendedUserMixin, PassedTestMixin,
+                     QuestionMixin, PointsCalculatorMixin):
     def get(self, request, *args, **kwargs):
         if self.is_passed_test:
             self.mark_test_as_passed()
@@ -264,5 +279,7 @@ class TestResultView(DetailView, ExtendedUserMixin, PassedTestMixin, QuestionMix
         return {
             "test": test,
             "passed_test": passed_test,
-            "passed_questions": passed_questions
+            "passed_questions": passed_questions,
+            "percent": self.calculate_percent,
+            "test_result": self.test_result
         }

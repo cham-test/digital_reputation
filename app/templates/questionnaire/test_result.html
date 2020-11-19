@@ -6,7 +6,13 @@
 
 {% block content %}
     <h2>Результаты теста: {{ test.name }}</h2>
+    {% if test_result %}
+        <b>Тест пройден успешно</b>
+    {% else %}
+        <b>Тест провален</b>
+    {% endif %}
     <p>Количество баллов {{ passed_test.num_of_points }}</p>
+    <p>Результат: {{ percent }} процентов</p>
     {% for question in passed_questions %}
         {#   ENUM located questionnaire.models.PassedQuestion #}
         {% if question.answer_type == 2 %}

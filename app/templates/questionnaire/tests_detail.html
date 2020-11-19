@@ -10,6 +10,13 @@
     <p>Количество вопросов: {{ questions.count }}</p>
     <p>Максимальное количество баллов: {{ max_points }}</p>
     {% if test_status == "completed" %}
+            <p>Вы уже проходили этот тест</p>
+            <p>Ваш результат: {{ percent }}</p>
+            {% if test_result %}
+                <p>Тест пройден успешно</p>
+            {% else %}
+                <p>Тест завален</p>
+            {% endif %}
             <button type="submit" id="restart_test">Начать заново</button>
     {% elif test_status == "not_started" %}
         <a href="{% url "questionnaire:question-detail" test_pk=test.pk question_pk=1 %}">Начать отвечать</a>
