@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 
+from . import credentials
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -120,4 +122,12 @@ LOGIN_URL = '/user/sign_in/'
 
 LOGOUT_REDIRECT_URL = '/user/sign_in/'
 
-LOGIN_REDIRECT_URL = '/tests/list/'
+LOGIN_REDIRECT_URL = '/user/email_confirmation/'
+
+# Email settings
+
+EMAIL_HOST = credentials.EMAIL_HOST
+EMAIL_HOST_USER = credentials.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = credentials.EMAIL_HOST_PASSWORD
+EMAIL_PORT = credentials.EMAIL_PORT
+EMAIL_USE_TLS = credentials.EMAIL_USE_TLS
