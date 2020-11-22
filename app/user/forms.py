@@ -12,13 +12,4 @@ class UserModelRegisterForm(forms.ModelForm):
             "password": forms.PasswordInput()
         }
 
-    def save(self, commit=True):
-        email = self.cleaned_data.get("email")
-        password = self.cleaned_data.get("password")
-        user = User.objects.create(email=email,
-                                   username=email)
-        user.set_password(password)
-        user.save()
-        extended_user = ExtendedUser.objects.create(user=user)
-        extended_user.save()
-        return user
+

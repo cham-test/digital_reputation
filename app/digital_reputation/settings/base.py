@@ -122,7 +122,7 @@ LOGIN_URL = '/user/sign_in/'
 
 LOGOUT_REDIRECT_URL = '/user/sign_in/'
 
-LOGIN_REDIRECT_URL = '/user/email_confirmation/'
+LOGIN_REDIRECT_URL = '/tests/list/'
 
 # Email settings
 

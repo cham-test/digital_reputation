@@ -22,7 +22,7 @@ class Test(models.Model):
 class ExtendedUser(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     tests = models.ManyToManyField(Test, verbose_name="Тесты")
-    activation_code = models.CharField(max_length=120, verbose_name="Код авторизации почты")
+    activation_code = models.CharField(max_length=120, verbose_name="Код авторизации почты", null=True)
 
     class Meta:
         verbose_name = "Расширенный пользователь"

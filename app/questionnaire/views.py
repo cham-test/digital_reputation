@@ -1,3 +1,5 @@
+import secrets
+
 from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
 
 from django.urls import reverse
@@ -83,6 +85,8 @@ class ExtendedUserMixin:
         extended_user = ExtendedUser.objects.get(user_id=user_id)
         return extended_user
 
+    def generate_activation_code(self) -> str:
+        return secrets.token_hex(32)
 
 class PassedTestMixin:
     def delete_passed_test(self) -> tuple:
